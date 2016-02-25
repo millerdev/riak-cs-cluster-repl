@@ -47,3 +47,5 @@ validate_data bucket-a
 
 $ python runner.py script
 ```
+
+See [example_script.txt](example_script.txt) for a more realistic example.
