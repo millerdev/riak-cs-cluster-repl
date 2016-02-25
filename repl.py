@@ -63,7 +63,7 @@ class RiakTester(cmd.Cmd):
     def do_riak_admin(self, args):
         """riak_admin [admin command]"""
         args = args.split(' ')
-        print sh.Command('./ssh_command.sh')('riak-admin', *args, _ok_code=[0,1])
+        print sh.Command('./bin/ssh_command.sh')('riak-admin', *args, _ok_code=[0,1])
 
     def do_ring_ownership(self, args):
         """print the ring ownership"""
@@ -77,13 +77,13 @@ class RiakTester(cmd.Cmd):
         if os.path.exists(self.config.data_dir):
             shutil.rmtree(self.config.data_dir)
 
-        sh.Command('./kill-cluster.sh')()
+        sh.Command('./bin/kill-cluster.sh')()
         if os.path.exists(self.config.riak_config_path):
             os.remove(self.config.riak_config_path)
 
     def do_add_node(self, args):
         """add_node"""
-        sh.Command('./add_node.sh')()
+        sh.Command('./bin/add_node.sh')()
         wait_for_cluster_to_balance()
 
     def do_add_nodes(self, num):
@@ -96,7 +96,7 @@ class RiakTester(cmd.Cmd):
 
         for i in range(num):
             print '  Adding node', i + 1
-            sh.Command('./add_node.sh')()
+            sh.Command('./bin/add_node.sh')()
         wait_for_cluster_to_balance()
 
     def do_write_random_data(self, args):

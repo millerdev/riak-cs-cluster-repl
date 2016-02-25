@@ -35,7 +35,7 @@ def _get_ring_split():
 
 
 def get_ring_details():
-    status = sh.Command('./get_stats.sh')()
+    status = sh.Command('./bin/get_stats.sh')()
     status = json.loads(str(status))
     ring_num_partitions = status['ring_num_partitions']
     ring_ownership = status['ring_ownership']

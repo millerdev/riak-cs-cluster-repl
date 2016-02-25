@@ -1,5 +1,7 @@
 #! /bin/bash
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 set -e
 
 if env | egrep -q "DOCKER_RIAK_CS_DEBUG"; then
@@ -42,11 +44,11 @@ if [ "${index}" -eq "01" ] ; then
     echo "{\"url\": \"http://${CLEAN_DOCKER_HOST}:${CONTAINER_PORT}\"," > $CONFIG_PATH
 
     for field in admin_key admin_secret ; do
-      until ./ssh_command.sh egrep "${field}" /etc/riak-cs/app.config | cut -d'"' -f2 | egrep -v "admin" > /dev/null 2>&1
+      until $DIR/ssh_command.sh egrep "${field}" /etc/riak-cs/app.config | cut -d'"' -f2 | egrep -v "admin" > /dev/null 2>&1
       do
         sleep 1
       done
-      value=$(./ssh_command.sh egrep "${field}" /etc/riak-cs/app.config | cut -d'"' -f2)
+      value=$($DIR/ssh_command.sh egrep "${field}" /etc/riak-cs/app.config | cut -d'"' -f2)
       echo "\"${field}\": \"${value}\"," >> $CONFIG_PATH
     done
 
@@ -55,7 +57,7 @@ if [ "${index}" -eq "01" ] ; then
     echo "$config}" > $CONFIG_PATH
 else
     echo "  Waiting for cluster to stabalize"
-    until ./ssh_command.sh riak-admin member-status | egrep "valid" | wc -l | egrep -q "${DOCKER_RIAK_CS_CLUSTER_SIZE}"
+    until $DIR/ssh_command.sh riak-admin member-status | egrep "valid" | wc -l | egrep -q "${DOCKER_RIAK_CS_CLUSTER_SIZE}"
     do
       sleep 2
     done
