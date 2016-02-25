@@ -36,5 +36,8 @@ add_nodes 3
 write_random_data bucket-a 100
 validate_data bucket-a
 
+stop_node 03
+validate_data bucket-a
+
 $ python runner.py script
 ```
