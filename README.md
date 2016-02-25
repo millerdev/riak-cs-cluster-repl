@@ -1,8 +1,8 @@
-Repl for playing with a Riak CS cluster
-=======================================
+# Repl for playing with a Riak CS cluster
 
-Setup
------
+
+## Setup
+### Build docker image
 ```
 git clone https://github.com/snopoke/docker-riak-cs.git
 cd docker-riak-cs
@@ -10,8 +10,15 @@ git checkout patch-1
 make build
 ```
 
-Running REPL
-------------
+### Setup repl
+```
+git clone https://github.com/snopoke/riak-cs-cluster-repl.git
+cd riak-cs-cluster-repl
+mkvirtuanenv riak-repl
+pip install -r requirements.txt
+```
+
+## Running REPL
 ```
 $ python runner.py
 Raik Testing Tool
@@ -27,8 +34,7 @@ exit       list_buckets      reset        start_node      write_random_data
 => 
 ```
 
-Run Script
-----------
+## Run Script
 ```
 $ cat script
 reset
