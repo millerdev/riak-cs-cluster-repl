@@ -1,0 +1,5 @@
+.insecure_key
+config.json
+test_data
+*.pyc
+.idea

@@ -1,0 +1,21 @@
+reset
+add_nodes 3
+write_data bucket-a 100
+write_data bucket-b 100
+validate_data bucket-a bucket-b
+
+stop_node 03
+validate_data bucket-a bucket-b
+wait 10
+validate_data bucket-a bucket-b
+
+stop_node 02
+validate_data bucket-a bucket-b
+
+start_node 02
+wait 10
+validate_data bucket-a bucket-b
+
+start_node 03
+wait 10
+validate_data bucket-a bucket-b
