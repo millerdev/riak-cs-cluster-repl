@@ -31,7 +31,7 @@ def _total_nodes():
 def _get_ring_split():
     ring_num_partitions, ring_ownership = get_ring_details()
     splits = re.findall(r"\{'riak@\d+.\d+.\d+.\d+',(\d+)\}", ring_ownership)
-    return ring_num_partitions, splits
+    return ring_num_partitions, [int(split) for split in splits]
 
 
 def get_ring_details():
