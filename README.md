@@ -4,8 +4,9 @@ Repl for playing with a Riak CS cluster
 Setup
 -----
 ```
-git clone https://github.com/hectcastro/docker-riak-cs.git
+git clone https://github.com/snopoke/docker-riak-cs.git
 cd docker-riak-cs
+git checkout patch-1
 make build
 ```
 
