@@ -49,3 +49,19 @@ $ python runner.py script
 ```
 
 See [example_script.txt](example_script.txt) for a more realistic example.
+
+## Real testing
+To really test the cluster it's useful to run 2 REPL sessions concurrently.
+Here is an example session that tests removing a node from a 3 node cluster:
+
+```
+repl1 => reset
+repl1 => add_nodes 3
+repl1 => write_random_data bucket-a 1000
+
+repl2 => validate_data_continuous bucket-a
+  Validating bucket bucket-a
+..................................
+
+repl1 => stop_node 03
+```
