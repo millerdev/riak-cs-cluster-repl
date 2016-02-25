@@ -55,18 +55,19 @@ class RiakTester(cmd.Cmd):
         sleep(5)
 
     def do_list_nodes(self, args):
-        """list_nodes"""
+        """list all the nodes (running and not running)"""
         print docker(
             'ps', '-a', '--filter', 'ancestor=hectcastro/riak-cs', '--format', '"{{.Names}}: {{.Status}}"'
         )
 
     def do_riak_admin(self, args):
-        """riak_admin [admin command]"""
+        """riak_admin [admin command]
+        Run with no command to list the available commands"""
         args = args.split(' ')
         print sh.Command('./bin/ssh_command.sh')('riak-admin', *args, _ok_code=[0,1])
 
     def do_ring_ownership(self, args):
-        """print the ring ownership"""
+        """Print the ring ownership"""
         ring_num_partitions, ring_ownership = get_ring_details()
         print ring_ownership
 
@@ -82,7 +83,9 @@ class RiakTester(cmd.Cmd):
             os.remove(self.config.riak_config_path)
 
     def do_add_node(self, args):
-        """add_node"""
+        """add_node
+        Add a node to the cluster and wait for it to come up and for the
+        cluster to stabalize"""
         sh.Command('./bin/add_node.sh')()
         wait_for_cluster_to_balance()
 
@@ -100,7 +103,7 @@ class RiakTester(cmd.Cmd):
         wait_for_cluster_to_balance()
 
     def do_write_random_data(self, args):
-        """write_data [bucket] [num files]"""
+        """write_random_data [bucket] [num files]"""
         try:
             bucket, num_files = args.split(' ')
         except:
@@ -155,7 +158,6 @@ class RiakTester(cmd.Cmd):
                 print key
 
     def do_list_buckets(self, args):
-        """list_buckets"""
         db = get_db(self.config)
         try:
             buckets = db.get_buckets()
@@ -166,7 +168,9 @@ class RiakTester(cmd.Cmd):
                 print bucket
 
     def do_validate_data(self, buckets):
-        """validate_data [bucket]"""
+        """validate_data [bucket]
+        Read all the data in a bucket and check that it matches what we
+        have stored on disk"""
         if not buckets:
             self.do_help('validate_data')
             return
