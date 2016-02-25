@@ -102,6 +102,9 @@ class RiakTester(cmd.Cmd):
             sh.Command('./bin/add_node.sh')()
         wait_for_cluster_to_balance()
 
+    def do_wait_for_rebalance(self, args):
+        wait_for_cluster_to_balance()
+
     def do_write_random_data(self, args):
         """write_random_data [bucket] [num files]"""
         try:
@@ -187,6 +190,16 @@ class RiakTester(cmd.Cmd):
                 print
                 if results.success != results.total:
                     print "  Validating error: ", results
+
+    def do_validate_data_continuous(self, buckets):
+        """validate_data_continuous [buckets]"""
+        print 'Press Ctrl-C to stop'
+        try:
+            while True:
+                self.do_validate_data(buckets)
+        except KeyboardInterrupt:
+            print
+            return
 
     def do_wait(self, args):
         """wait [N seconds]"""
