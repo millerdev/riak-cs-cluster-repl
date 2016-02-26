@@ -35,6 +35,7 @@ CONFIG_PATH="config.json"
 
 until curl -s "http://${CLEAN_DOCKER_HOST}:${CONTAINER_PORT}/riak-cs/ping" | egrep "OK" > /dev/null 2>&1;
 do
+    echo -n '.'
     sleep 3
 done
 
