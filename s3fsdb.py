@@ -1,4 +1,5 @@
 import os
+import random
 import sys
 from collections import namedtuple
 from contextlib import contextmanager
@@ -71,6 +72,12 @@ class S3FSDB(object):
                 not_found += 1
 
         return ValidateResult(total, success, not_found, mismatch)
+
+    def random_read(self, bucket_name):
+        bucket_path = os.path.join(self.data_dir, bucket_name)
+        random_file = random.choice(os.listdir(bucket_path))
+        self.dot()
+        self.get(random_file, bucket_name)
 
     def get_bucket_keys(self, bucket_name):
         bucket = self.get_bucket(bucket_name)

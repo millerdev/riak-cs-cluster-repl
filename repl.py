@@ -1,7 +1,9 @@
 import cmd
 import os
+import random
 import shutil
 import sys
+from collections import defaultdict
 from time import sleep
 
 import sh
@@ -200,6 +202,44 @@ class RiakTester(cmd.Cmd):
         except KeyboardInterrupt:
             print
             return
+
+    def do_read_write_continuous(self, bucket):
+        """read_write_continuous [bucket]"""
+        print 'Press Ctrl-C to stop'
+        if not bucket:
+            self.do_help('read_write_continuous')
+            return
+
+        db = get_db(self.config)
+        actions = {
+            'read1': db.random_read,
+            'read2': db.random_read,
+            'read3': db.random_read,
+            'read4': db.random_read,
+            'write': db.create_file,
+        }
+
+        count = 0
+        fails = []
+        try:
+            while True:
+                count += 1
+                action = random.choice(actions.items())
+                try:
+                    action[1](bucket)
+                except Exception as e:
+                    fails.append((action[0], e))
+
+                if count % 100 == 0:
+                    print
+                    print count
+                    for fail in fails:
+                        print '    ', fail
+                    fails = []
+        except KeyboardInterrupt:
+            print
+            return
+
 
     def do_wait(self, args):
         """wait [N seconds]"""
