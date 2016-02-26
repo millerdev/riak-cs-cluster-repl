@@ -11,16 +11,21 @@ from s3fsdb import S3FSDB
 def wait_for_cluster_to_balance():
     total_nodes = _total_nodes()
 
+    ring_num_partitions, splits = _get_ring_split()
+    even_split = ring_num_partitions / total_nodes
+    print '  Rebalancing. Expecting {} nodes with ~{} partitions each'.format(
+        total_nodes, even_split
+    )
     while True:
         ring_num_partitions, splits = _get_ring_split()
-        print '  Waiting for rebalance. Current ring split:', splits
+        print '  Current partition split:', splits
         if len(splits) == total_nodes:
-            min_allowed = ring_num_partitions / total_nodes / 4 * 3
-            if all(split > min_allowed for split in splits):
+            # wait until a majority of nodes have ``~even_split`` partitions
+            if sum((even_split - 1) <= split <= (even_split + 1) for split in splits) > total_nodes / 2:
                 return
-            sleep(2)
-        else:
             sleep(5)
+        else:
+            sleep(10)
 
 
 def _total_nodes():
