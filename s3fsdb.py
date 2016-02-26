@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from uuid import uuid4
 
 import boto3
+from botocore.client import Config
 from botocore.exceptions import ClientError
 from botocore.utils import fix_s3_host
 
@@ -24,6 +25,7 @@ class S3FSDB(object):
             endpoint_url=url,
             aws_access_key_id=admin_key,
             aws_secret_access_key=admin_secret,
+            config=Config(connect_timeout=1, read_timeout=1)
         )
         # https://github.com/boto/boto3/issues/259
         self.db.meta.client.meta.events.unregister('before-sign.s3', fix_s3_host)
