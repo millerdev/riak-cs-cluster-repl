@@ -4,7 +4,7 @@
 ## Setup
 ### Build docker image
 ```
-git clone https://github.com/snopoke/docker-riak-cs.git
+git clone https://github.com/hectcastro/docker-riak-cs
 cd docker-riak-cs
 git checkout patch-1
 make build
