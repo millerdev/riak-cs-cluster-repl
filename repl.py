@@ -1,9 +1,11 @@
 import cmd
+import logging
 import os
 import random
+import re
 import shutil
 import sys
-from collections import defaultdict
+import traceback
 from time import sleep
 
 import sh
@@ -13,6 +15,9 @@ from utils import wait_for_cluster_to_balance, get_db, get_ring_details
 
 docker = sh.Command('docker')
 
+#logging.basicConfig(level=logging.DEBUG)  # uncomment to debug boto3
+
+
 class RiakTester(cmd.Cmd):
     prompt = '=> '
     intro = "Raik Testing Tool"
@@ -20,6 +25,12 @@ class RiakTester(cmd.Cmd):
     def __init__(self, config, stdin=None):
         cmd.Cmd.__init__(self, stdin=stdin)
         self.config = config
+
+    def onecmd(*args, **kw):
+        try:
+            return cmd.Cmd.onecmd(*args, **kw)
+        except Exception:
+            traceback.print_exc()
 
     def do_exit(self, args):
         """Exits from the console"""
@@ -72,6 +83,17 @@ class RiakTester(cmd.Cmd):
         """Print the ring ownership"""
         ring_num_partitions, ring_ownership = get_ring_details()
         print ring_ownership
+
+    def do_clear(self, args):
+        """clear [bucket [bucket ...]]"""
+        db = get_db(self.config)
+        if args:
+            buckets = args.split()
+        else:
+            buckets = db.get_buckets()
+        for bucket in buckets:
+            deleted = db.clear(bucket)
+            print "removed {} objects from {!r} bucket".format(deleted, bucket)
 
     def do_reset(self, args):
         """reset
@@ -132,6 +154,42 @@ class RiakTester(cmd.Cmd):
         db = get_db(self.config)
         db.get_bucket(bucket)
         print db.create_file(bucket, key, content)
+
+    def do_put_blob(self, args):
+        """put_blob [bucket] [size] [key]
+
+        Create a blob with random content.
+
+        size must be a number of bytes followed by an optional multiplier:
+
+            K - 1024
+            M - 1048576
+            G - 1073741824
+
+        key is optional
+        """
+        argv = args.split()
+        if len(argv) == 2:
+            bucket, size = argv
+            key = None
+        elif len(argv) == 3:
+            bucket, size, key = argv
+        else:
+            self.do_help('put_blob')
+            return
+
+        if not re.match(r"\d+[KMG]?$", size):
+            print "invalid size: {}".format(size)
+            return
+        if not size.endswith(("K", "M", "G")):
+            num_bytes = size
+        else:
+            multiplier = {"K": 1024, "M": 1024 ** 2, "G": 1024 ** 3}[size[-1]]
+            num_bytes = int(size[:-1]) * multiplier
+
+        db = get_db(self.config)
+        key = db.random_file(bucket, num_bytes, key)
+        print "put {} ({} = {} bytes)".format(key, size, num_bytes)
 
     def do_get(self, args):
         """get [bucket] [key]"""
@@ -239,7 +297,6 @@ class RiakTester(cmd.Cmd):
         except KeyboardInterrupt:
             print
             return
-
 
     def do_wait(self, args):
         """wait [N seconds]"""
